@@ -3,7 +3,7 @@
  * created on 29.7.2017
  * this syllable counter is primarily for a flesch readability calculator
  * so err on the side of too many syllables rather than too few
- * ('ed' on end issue - 'manned' counts as 2. ed on end is sometimes syllable, someties not
+ * 'ed' on end issue - 'manned/screeched/' counts as 2. ed on end is sometimes syllable, someties not
  */
 
 public class SyllableCount {
@@ -11,75 +11,80 @@ public class SyllableCount {
     /**
      * -- isVowel --
      * Returns true if a character is a vowel, false if it is anything else
+     *
      * @language English
      * @param letter
      * @return The number of syllables (int)
      */
-	public static boolean isVowel(char letter) {
-		 boolean isAVowel = false;
-		   
-		   switch (letter) {
-			case 'a':
-			case 'e':
-			case 'i':
-			case 'o':
-			case 'u':
-			case 'A':
-			case 'E':
-			case 'I':
-			case 'O':
-			case 'U':
-			case 'y':
-			case 'Y':
-				isAVowel = true;
-				break;
-			default:
-//				isAVowel = false;
-				break;
-		   }
-		   return isAVowel;
-	}
+    public static boolean isVowel(char letter) {
+        boolean isAVowel = false;
 
-	
-	/**
-	 * -- syllableCount --
-	 * Returns the number of syllables in a word (int)
-	 * By counting the vowels, not counting vowels next to other vowels
-	 * and not counting an ending e (that isn't preceded by a vowel)
-	 * 
-	 * @language English
-	 * @param word
-	 * @return The number of syllables (int)
-	 */
+        switch (letter) {
+            case 'a':
+            case 'e':
+            case 'i':
+            case 'o':
+            case 'u':
+            case 'A':
+            case 'E':
+            case 'I':
+            case 'O':
+            case 'U':
+            case 'y':
+            case 'Y':
+                isAVowel = true;
+                break;
+            default:
+//				isAVowel = false;
+                break;
+        }
+        return isAVowel;
+    }
+
+
+    /**
+     * -- syllableCount --
+     * Returns the number of syllables in a word (int)
+     * By counting the vowels, not counting vowels next to other vowels
+     * and not counting an ending e (that isn't preceded by a vowel)
+     *
+     * @language English
+     * @param word
+     * @return The number of syllables (int)
+     */
     public static int syllableCount(String word) {
         word = word.toLowerCase();
 
         int syllCount = 0;
-	    char currentChar;
-	    char secondLast;
-	   
-	    boolean isCurrentCharVowel = false;
-	    boolean isPreviousCharVowel = false; //store the vowel-status of previous char so we can check for double vowels.
-	    boolean isVowelBeforeLastE = false;
-	    
-	    for (int i=0; i<word.length(); i++) { //cycle through each letter to look for vowels
-               
-		    currentChar = word.charAt(i);
-		    isCurrentCharVowel = isVowel(currentChar); //returns true/false, using helper method
+        char currentChar;
+        char secondLast;
 
-				
-		    if (isCurrentCharVowel && !isPreviousCharVowel) { //if this is a vowel, and the one before it is not
-			   syllCount++;
-		    }
+        boolean isCurrentCharVowel = false;
+        boolean isPreviousCharVowel = false; //store the vowel-status of previous char so we can check for double vowels.
+        boolean isVowelBeforeLastE = false;
+
+        for (int i=0; i<word.length(); i++) { //cycle through each letter to look for vowels
+
+            currentChar = word.charAt(i);
+            isCurrentCharVowel = isVowel(currentChar); //returns true/false, using helper method
+
+
+            if (isCurrentCharVowel && !isPreviousCharVowel) { //if this is a vowel, and the one before it is not
+                syllCount++;
+            }
 
 
             isPreviousCharVowel = isCurrentCharVowel; //remember this for the next iteration
-            secondLast = word.charAt(word.length()-2);
+            if (i>1) {
+                secondLast = word.charAt(word.length()-2);
+            } else {
+                secondLast = '.';
+            }
             isVowelBeforeLastE = isVowel(secondLast);
 
 
-		    //"io" dipthong check
-		    if (i > 1 && word.charAt(i-1)=='i' && word.charAt(i) == 'o') {
+            //"io" dipthong check
+            if (i > 1 && word.charAt(i-1)=='i' && word.charAt(i) == 'o') {
                 syllCount++;
                 isPreviousCharVowel = false; //if the next is a vowel, we just counted it already
             }
@@ -93,15 +98,22 @@ public class SyllableCount {
 
             // end 'io' dipthong check
 
-	    } //end for loop
+        } //end for loop
 
-	    //if word ends with e and that e is not preceded by a vowel
-	    if (word.endsWith("e") && !isVowelBeforeLastE) {
-		    syllCount--; // it is likely a silent e. dont count as syllable
-	    } 
+        //if word ends with e and that e is not preceded by a vowel
+        if (word.endsWith("e") && !isVowelBeforeLastE) {
+            syllCount--; // it is likely a silent e. dont count as syllable
+        }
 
-	    if (syllCount == 0) {
-	        syllCount = 1; //all words have at least 1
+        //silent ending 'ed'?
+        if (word.endsWith("ed")) {
+            syllCount--; // it is likely a silent e. dont count as syllable
+        }
+
+
+        //all words have at least 1
+        if (syllCount == 0) {
+            syllCount = 1;
         }
 
         // 2 char diphong check fixes
@@ -128,27 +140,27 @@ public class SyllableCount {
         }
 
 
-	    return syllCount;
+        return syllCount;
     }
 
 
     public static void main(String[] args){
 
-		System.out.println(syllableCount("blx") + " : 1 blx");
+        System.out.println(syllableCount("blx") + " : 1 blx");
         System.out.println(syllableCount("great") + " : 1 great");
         System.out.println(syllableCount("ava") + " : 2 ava");
         System.out.println(syllableCount("eye") + " : 1 eye");
         System.out.println(syllableCount("hyphenation") + " : 4 hyphenation");
-		System.out.println(syllableCount("canoe") + " : 2 canoe");
-		System.out.println(syllableCount("fairy") + " : 2 fairy");
-		System.out.println(syllableCount("zygote") + " : 2 zygote");
+        System.out.println(syllableCount("canoe") + " : 2 canoe");
+        System.out.println(syllableCount("fairy") + " : 2 fairy");
+        System.out.println(syllableCount("zygote") + " : 2 zygote");
         System.out.println(syllableCount("rio") + " : 2 Rio");   //2 char dipthongchecks
         System.out.println(syllableCount("ratio") + " : 3 ratio");
         System.out.println(syllableCount("ration") + " : 2 ration");
         System.out.println(syllableCount("toil") + " : 2 toil"); //2 char dipthongchecks
         System.out.println(syllableCount("koi") + " : 1 koi");   //2 char dipthongchecks
         System.out.println();
-		System.out.println(syllableCount("invisible") + " : 4 invisible (hard code)");
+        System.out.println(syllableCount("invisible") + " : 4 invisible (hard code)");
         System.out.println(syllableCount("radioelectrocardiograph") + " : 10 radioelectrocardiograph");
         System.out.println();
 
@@ -180,6 +192,18 @@ public class SyllableCount {
         System.out.println(syllableCount("abducted") + " : 3 abducted");
         System.out.println(syllableCount("abolished") + " : 3 abolished");
         System.out.println(syllableCount("absorbed") + " : 2 absorbed");
-	}
+
+        System.out.println(syllableCount("managed") + " : 2 managed");
+        System.out.println(syllableCount("forked") + " : 1 forked");
+
+        System.out.println(syllableCount("very") + " : 2 very");
+        System.out.println(syllableCount("wily") + " : 2 wily");
+        System.out.println(syllableCount("Mr") + " : 2 Mr");
+        System.out.println(syllableCount("fox") + " : 1 fox");
+        System.out.println(syllableCount("loved") + " : 1 loved");
+        System.out.println(syllableCount("eat") + " : 1 eat");
+        System.out.println(syllableCount("rabbits") + " : 2 rabbits");
+
+    }
 }
 
